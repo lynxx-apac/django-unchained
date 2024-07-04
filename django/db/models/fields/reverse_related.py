@@ -15,9 +15,11 @@ from django.core import exceptions
 from django.utils.deprecation import RemovedInDjango60Warning
 from django.utils.functional import cached_property
 from django.utils.hashable import make_hashable
+from django.utils.module_loading import import_string
 
 from . import BLANK_CHOICE_DASH
 from .mixins import FieldCacheMixin
+from .related_descriptors import create_reverse_many_to_one_manager
 
 
 class ForeignObjectRel(FieldCacheMixin):
@@ -413,3 +415,23 @@ class ManyToManyRel(ForeignObjectRel):
                 if rel and rel.model == self.model:
                     break
         return field.foreign_related_fields[0]
+
+
+class LazyManyToOneRel:
+    def __init__(self, to, field_name, *args, **kwargs):
+        self.to = to
+        self.field_name = field_name
+        self.args = args
+        self.kwargs = kwargs
+        self._many_to_one_rel = None
+
+    @property
+    def many_to_one_rel(self):
+        if not self._many_to_one_rel:
+            field = getattr(import_string(self.to), self.field_name)
+            self._many_to_one_rel = ManyToOneRel(
+                field, self.to, self.field_name, *self.args, **self.kwargs)
+        return self._many_to_one_rel
+
+    def __getattr__(self, item):
+        return getattr(self.many_to_one_rel, item)

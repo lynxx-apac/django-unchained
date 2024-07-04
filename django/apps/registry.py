@@ -35,6 +35,7 @@ class Apps:
 
         # Mapping of labels to AppConfig instances for installed apps.
         self.app_configs = {}
+        self.lazy_apps = {}
 
         # Stack of app_configs. Used to store the current state in
         # set_available_apps and set_installed_apps.
@@ -257,15 +258,24 @@ class Apps:
         Return the app config for the inner application in case of nesting.
         Return None if the object isn't in any registered app config.
         """
-        self.check_apps_ready()
+        from django.conf import settings
+        installed_apps = settings.INSTALLED_APPS
         candidates = []
-        for app_config in self.app_configs.values():
-            if object_name.startswith(app_config.name):
-                subpath = object_name.removeprefix(app_config.name)
+        for app_name in installed_apps:
+            if object_name.startswith(app_name):
+                subpath = object_name.removeprefix(app_name)
                 if subpath == "" or subpath[0] == ".":
-                    candidates.append(app_config)
+                    candidates.append(app_name)
         if candidates:
-            return sorted(candidates, key=lambda ac: -len(ac.name))[0]
+            object_app_name = sorted(candidates, key=lambda ac: -len(ac))[0]
+            try:
+                return self.app_configs[object_app_name]
+            except KeyError:
+                try:
+                    return self.lazy_apps[object_app_name]
+                except KeyError:
+                    self.lazy_apps[object_app_name] = AppConfig.create(object_app_name)
+                    return self.lazy_apps[object_app_name]
 
     def get_registered_model(self, app_label, model_name):
         """

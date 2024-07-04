@@ -37,7 +37,8 @@ from .related_lookups import (
     RelatedLessThan,
     RelatedLessThanOrEqual,
 )
-from .reverse_related import ForeignObjectRel, ManyToManyRel, ManyToOneRel, OneToOneRel
+from .reverse_related import ForeignObjectRel, ManyToManyRel, \
+    ManyToOneRel, OneToOneRel, LazyManyToOneRel
 
 RECURSIVE_RELATIONSHIP_CONSTANT = "self"
 

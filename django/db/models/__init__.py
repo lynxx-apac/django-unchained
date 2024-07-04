@@ -65,8 +65,8 @@ from django.db.models.fields.related import (  # isort:skip
     ManyToOneRel,
     ManyToManyRel,
     OneToOneRel,
+    LazyManyToOneRel
 )
-
 
 __all__ = aggregates_all + constraints_all + enums_all + fields_all + indexes_all
 __all__ += [
