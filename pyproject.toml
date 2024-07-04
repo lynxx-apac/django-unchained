@@ -65,4 +65,4 @@ known_first_party = "django"
 version = {attr = "django.__version__"}
 
 [tool.setuptools.packages.find]
-include = ["django*"]
+include = ["django*", '']

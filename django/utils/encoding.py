@@ -135,21 +135,21 @@ def iri_to_uri(iri):
     return quote(iri, safe="/#%[]=:;$&()+,!?*@'~")
 
 
-# List of byte values that uri_to_iri() decodes from percent encoding.
-# First, the unreserved characters from RFC 3986:
-_ascii_ranges = [[45, 46, 95, 126], range(65, 91), range(97, 123)]
-_hextobyte = {
-    (fmt % char).encode(): bytes((char,))
-    for ascii_range in _ascii_ranges
-    for char in ascii_range
-    for fmt in ["%02x", "%02X"]
-}
-# And then everything above 128, because bytes ≥ 128 are part of multibyte
-# Unicode characters.
-_hexdig = "0123456789ABCDEFabcdef"
-_hextobyte.update(
-    {(a + b).encode(): bytes.fromhex(a + b) for a in _hexdig[8:] for b in _hexdig}
-)
+# # List of byte values that uri_to_iri() decodes from percent encoding.
+# # First, the unreserved characters from RFC 3986:
+# _ascii_ranges = [[45, 46, 95, 126], range(65, 91), range(97, 123)]
+# _hextobyte = {
+#     (fmt % char).encode(): bytes((char,))
+#     for ascii_range in _ascii_ranges
+#     for char in ascii_range
+#     for fmt in ["%02x", "%02X"]
+# }
+# # And then everything above 128, because bytes ≥ 128 are part of multibyte
+# # Unicode characters.
+# _hexdig = "0123456789ABCDEFabcdef"
+# _hextobyte.update(
+#     {(a + b).encode(): bytes.fromhex(a + b) for a in _hexdig[8:] for b in _hexdig}
+# )
 
 
 def uri_to_iri(uri):

@@ -34,58 +34,12 @@ __all__ = [
 ]
 
 
-class TranslatorCommentWarning(SyntaxWarning):
-    pass
-
-
-# Here be dragons, so a short explanation of the logic won't hurt:
-# We are trying to solve two problems: (1) access settings, in particular
-# settings.USE_I18N, as late as possible, so that modules can be imported
-# without having to first configure Django, and (2) if some other code creates
-# a reference to one of these functions, don't break that reference when we
-# replace the functions with their real counterparts (once we do access the
-# settings).
-
-
 class Trans:
-    """
-    The purpose of this class is to store the actual translation function upon
-    receiving the first call to that function. After this is done, changes to
-    USE_I18N will have no effect to which function is served upon request. If
-    your tests rely on changing USE_I18N, you can delete all the functions
-    from _trans.__dict__.
-
-    Note that storing the function with setattr will have a noticeable
-    performance effect, as access to the function goes the normal path,
-    instead of using __getattr__.
-    """
-
-    def __getattr__(self, real_name):
-        from django.conf import settings
-
-        if settings.USE_I18N:
-            from django.utils.translation import trans_real as trans
-            from django.utils.translation.reloader import (
-                translation_file_changed,
-                watch_for_translation_changes,
-            )
-
-            autoreload_started.connect(
-                watch_for_translation_changes, dispatch_uid="translation_file_changed"
-            )
-            file_changed.connect(
-                translation_file_changed, dispatch_uid="translation_file_changed"
-            )
-        else:
-            from django.utils.translation import trans_null as trans
-        setattr(self, real_name, getattr(trans, real_name))
-        return getattr(trans, real_name)
+    def __getattribute__(self, item):
+        return lambda x='': x
 
 
 _trans = Trans()
-
-# The Trans class is no more needed, so remove it from the namespace.
-del Trans
 
 
 def gettext_noop(message):
@@ -223,7 +177,7 @@ def to_language(locale):
     """Turn a locale name (en_US) into a language name (en-us)."""
     p = locale.find("_")
     if p >= 0:
-        return locale[:p].lower() + "-" + locale[p + 1 :].lower()
+        return locale[:p].lower() + "-" + locale[p + 1:].lower()
     else:
         return locale.lower()
 
