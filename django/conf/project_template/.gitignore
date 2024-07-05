@@ -1,0 +1,7 @@
+**/__pycache__/
+.idea
+media
+venv
+node_modules
+/static/
+system.toml

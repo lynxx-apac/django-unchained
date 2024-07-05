@@ -1,4 +1,6 @@
+import tomllib
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 MAIN_APP = Path(__file__).resolve().parent
 BASE_DIR = MAIN_APP.parent
@@ -77,13 +79,13 @@ WSGI_APPLICATION = f'{MAIN_APP.name}.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': DATABASE_RAW_CONFIG.get('name', PROJECT_NAME),
-        'USER': DATABASE_RAW_CONFIG.get('user', PROJECT_NAME),
-        'PASSWORD': DATABASE_RAW_CONFIG.get('pass', PROJECT_NAME),
-        'PORT': DATABASE_RAW_CONFIG.get('port', 5432),
+        'NAME': DATABASE_CONFIG.get('name', PROJECT_NAME),
+        'USER': DATABASE_CONFIG.get('user', PROJECT_NAME),
+        'PASSWORD': DATABASE_CONFIG.get('pass', PROJECT_NAME),
+        'PORT': DATABASE_CONFIG.get('port', 5432),
         'HOST': DATABASE_CONFIG.get('host', 'localhost'),
     },
-}}
+}
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -95,7 +97,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/{{ docs_version }}/topics/i18n/
+# https://docs.djangoproject.com/en/dev/topics/i18n/
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 AS_DB_TIME_ZONE = ZoneInfo(TIME_ZONE)
