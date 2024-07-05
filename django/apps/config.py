@@ -229,8 +229,6 @@ class AppConfig:
         """
         if require_ready:
             self.apps.check_models_ready()
-        else:
-            self.apps.check_apps_ready()
         try:
             return self.models[model_name.lower()]
         except KeyError:
@@ -251,7 +249,8 @@ class AppConfig:
         Set the corresponding keyword argument to True to include such models.
         Keyword arguments aren't documented; they're a private API.
         """
-        self.apps.check_models_ready()
+        if self.models is None:
+            self.import_models()
         for model in self.models.values():
             if model._meta.auto_created and not include_auto_created:
                 continue

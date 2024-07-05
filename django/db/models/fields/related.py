@@ -110,10 +110,8 @@ class RelatedField(FieldCacheMixin, Field):
         self._limit_choices_to = limit_choices_to
         super().__init__(**kwargs)
 
-    @cached_property
+    @property
     def related_model(self):
-        # Can't cache this property until all the models are loaded.
-        apps.check_models_ready()
         return self.remote_field.model
 
     def check(self, **kwargs):

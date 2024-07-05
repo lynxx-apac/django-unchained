@@ -34,8 +34,7 @@ class Apps:
         self.all_models = defaultdict(dict)
 
         # Mapping of labels to AppConfig instances for installed apps.
-        self.app_configs = {}
-        self.lazy_apps = {}
+        self.app_configs = self.lazy_apps = {}
 
         # Stack of app_configs. Used to store the current state in
         # set_available_apps and set_installed_apps.
@@ -127,17 +126,6 @@ class Apps:
             self.ready = True
             self.ready_event.set()
 
-    def check_apps_ready(self):
-        """Raise an exception if all apps haven't been imported yet."""
-        if not self.apps_ready:
-            from django.conf import settings
-
-            # If "not ready" is due to unconfigured settings, accessing
-            # INSTALLED_APPS raises a more helpful ImproperlyConfigured
-            # exception.
-            settings.INSTALLED_APPS
-            raise AppRegistryNotReady("Apps aren't loaded yet.")
-
     def check_models_ready(self):
         """Raise an exception if all models haven't been imported yet."""
         if not self.models_ready:
@@ -145,8 +133,8 @@ class Apps:
 
     def get_app_configs(self):
         """Import applications and return an iterable of app configs."""
-        self.check_apps_ready()
-        return self.app_configs.values()
+        # self.check_apps_ready()
+        return self.app_configs.values() or self.lazy_apps.values()
 
     def get_app_config(self, app_label):
         """
@@ -154,16 +142,20 @@ class Apps:
 
         Raise LookupError if no application exists with this label.
         """
-        self.check_apps_ready()
+        # self.check_apps_ready()
         try:
             return self.app_configs[app_label]
         except KeyError:
-            message = "No installed app with label '%s'." % app_label
-            for app_config in self.get_app_configs():
-                if app_config.name == app_label:
-                    message += " Did you mean '%s'?" % app_config.label
-                    break
-            raise LookupError(message)
+            return self.get_or_init_app(app_label)
+
+    def get_or_init_app(self, app_label):
+        try:
+            return self.lazy_apps[app_label]
+        except KeyError:
+            app_config = AppConfig.create(app_label)
+            self.lazy_apps[app_config.label] = app_config
+            app_config.apps = self
+            return self.lazy_apps[app_config.label]
 
     # This method is performance-critical at least for Django's test suite.
     @functools.cache
@@ -179,8 +171,6 @@ class Apps:
 
         Set the corresponding keyword argument to True to include such models.
         """
-        self.check_models_ready()
-
         result = []
         for app_config in self.app_configs.values():
             result.extend(app_config.get_models(include_auto_created, include_swapped))
@@ -198,11 +188,6 @@ class Apps:
         model exists with this name in the application. Raise ValueError if
         called with a single argument that doesn't contain exactly one dot.
         """
-        if require_ready:
-            self.check_models_ready()
-        else:
-            self.check_apps_ready()
-
         if model_name is None:
             app_label, model_name = app_label.split(".")
 
@@ -267,15 +252,11 @@ class Apps:
                 if subpath == "" or subpath[0] == ".":
                     candidates.append(app_name)
         if candidates:
-            object_app_name = sorted(candidates, key=lambda ac: -len(ac))[0]
+            app_label = sorted(candidates, key=lambda ac: -len(ac))[0]
             try:
-                return self.app_configs[object_app_name]
+                return self.app_configs[app_label]
             except KeyError:
-                try:
-                    return self.lazy_apps[object_app_name]
-                except KeyError:
-                    self.lazy_apps[object_app_name] = AppConfig.create(object_app_name)
-                    return self.lazy_apps[object_app_name]
+                return self.get_or_init_app(app_label)
 
     def get_registered_model(self, app_label, model_name):
         """
