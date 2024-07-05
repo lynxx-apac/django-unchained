@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django_filters',
     'django_admin_inline_paginator',
     'corsheaders',
+    'knox'
 ]
 
 MIDDLEWARE = [
