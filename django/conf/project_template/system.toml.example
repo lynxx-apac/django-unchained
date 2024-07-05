@@ -1,0 +1,40 @@
+[global]
+timezone = "Australia/Sydney"
+
+[database]
+host = "localhost"
+name = "postgres"
+user = "postgres"
+pass = ""
+port = 5432
+sslmode = "disable"
+default-character-set = "utf8"
+
+[django]
+debug = true
+log_level = "INFO"
+allowed_hosts = ["127.0.0.1", "localhost"]
+cors_allowed_origin = ["http://localhost:4200", "http://127.0.0.1:4200", "http://127.0.0.1:8000", "http://localhost:8000"]
+csrf_trusted_origins = ["http://127.0.0.1:3000", "http://localhost:3000", "http://127.0.0.1:8000", "http://localhost:8000"]
+secret_key = "<run python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())' to generate new key>"
+
+[cache]
+user = ""
+pass = ""
+host = "localhost"
+port = 6379
+db = 10
+timeout = 10800
+
+[celery]
+queue_user = ""
+queue_pass = ""
+target = "localhost"
+port = 6379
+name = 0
+
+[task_queues]
+[task_queues.celery]
+#E.G. 'my_app.tasks.some_fast_task' = "fast"
+[task_queues.sqs]
+[task_queues.sns]

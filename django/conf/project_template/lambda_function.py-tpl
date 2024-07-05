@@ -1,9 +1,15 @@
 import json
 import os
+from pathlib import Path
 
-os.environ['DJANGO_SETTINGS_MODULE'] = '{{ project_name }}.settings'
+MAIN_APP = Path(__file__).resolve()
+BASE_DIR = MAIN_APP.parent
+PROJECT_NAME = BASE_DIR.name
+os.environ['DJANGO_SETTINGS_MODULE'] = f'{PROJECT_NAME}.settings'
 from django.core.handlers import APIGatewayHandler
+
 handler = APIGatewayHandler()
+
 
 def lambda_handler(event, context=None):
     response = handler(event, context)
