@@ -1,0 +1,14 @@
+import json
+import os
+
+os.environ['DJANGO_SETTINGS_MODULE'] = '{{ project_name }}.settings'
+from django.core.handlers import APIGatewayHandler
+handler = APIGatewayHandler()
+
+def lambda_handler(event, context=None):
+    response = handler(event, context)
+    return {
+        'statusCode': response.status_code,
+        'headers': response.headers,
+        'body': json.dumps(response.data)
+    }
