@@ -7,7 +7,6 @@ import re
 from importlib import import_module
 
 from django.conf import settings
-from django.contrib.admindocs.views import simplify_regex
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.urls import URLPattern, URLResolver

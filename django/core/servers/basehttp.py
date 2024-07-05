@@ -44,13 +44,13 @@ def get_internal_wsgi_application():
     if app_path is None:
         return get_wsgi_application()
 
-    try:
-        return import_string(app_path)
-    except ImportError as err:
-        raise ImproperlyConfigured(
-            "WSGI application '%s' could not be loaded; "
-            "Error importing module." % app_path
-        ) from err
+    # try:
+    return import_string(app_path)
+    # except ImportError as err:
+    #     raise ImproperlyConfigured(
+    #         "WSGI application '%s' could not be loaded; "
+    #         "Error importing module." % app_path
+    #     ) from err
 
 
 def is_broken_pipe_error():

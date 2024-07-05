@@ -129,9 +129,6 @@ class Command(BaseCommand):
         # 'shutdown_message' is a stealth option.
         shutdown_message = options.get("shutdown_message", "")
 
-        if not options["skip_checks"]:
-            self.stdout.write("Performing system checks...\n\n")
-            self.check(display_num_errors=True)
         # Need to check migrations here, so can't use the
         # requires_migrations_check attribute.
         self.check_migrations()
