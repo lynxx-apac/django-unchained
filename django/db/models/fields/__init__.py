@@ -8,10 +8,12 @@ from base64 import b64decode, b64encode
 from collections.abc import Iterable
 from functools import partialmethod, total_ordering
 
-from django import forms
+from django.utils.module_loading import LazyImport
+
+forms = LazyImport("django.forms")
 from django.apps import apps
 from django.conf import settings
-from django.core import checks, exceptions, validators
+from django.core import exceptions, validators
 from django.db import connection, connections, router
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models.query_utils import DeferredAttribute, RegisterLookupMixin
