@@ -2,10 +2,14 @@ import tomllib
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+UNCHAINED = os.environ.get('UNCHAINED_TOML_PREFIX')
+
 MAIN_APP = Path(__file__).resolve().parent
 BASE_DIR = MAIN_APP.parent
-PROJECT_NAME = BASE_DIR.name
+PROJECT_NAME = '{{ project_name }}'
 config_name = Path('system.toml')
+if toml_prefix := UNCHAINED:
+    config_name = Path(f'system.{toml_prefix}.toml')
 config_path = Path(f'/etc/{PROJECT_NAME}') / config_name
 config_path = config_path if config_path.exists() else BASE_DIR / config_name
 SYSTEM_CONFIG = tomllib.load(config_path.open('rb'))
@@ -172,5 +176,14 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.MultiPartParser',
         'rest_framework.parsers.FileUploadParser',
     ],
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
+
+
+if UNCHAINED:
+    GDAL_LIBRARY_PATH = '/opt/lib/libgdal.so'
+    GEOS_LIBRARY_PATH = '/opt/lib/libgeos_c.so'
+
+if not UNCHAINED:
+    REST_FRAMEWORK['DEFAULT_SCHEMA_CLASS'] = 'drf_spectacular.openapi.AutoSchema'
+    for folder in [STATIC_ROOT, MEDIA_ROOT, TEMPLATE_ROOT]:
+        folder.mkdir(exist_ok=True, parents=True)

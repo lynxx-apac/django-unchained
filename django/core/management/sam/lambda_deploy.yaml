@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Django Lambda with API Gateway and VPC
+
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: The VPC ID to deploy the Lambda function
+
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: The list of Subnet IDs to deploy the Lambda function
+
+  ProjectName:
+    Type: String
+    Description: The name of the Django project
+
+Globals:
+  Function:
+    Timeout: 30
+
+Resources:
+  DjangoLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub "${ProjectName}-layer"
+      Description: !Sub "Django Layer for ${ProjectName}"
+      ContentUri: ./django_layer/
+      CompatibleRuntimes:
+        - python3.11
+      RetentionPolicy: Retain
+
+  DjangoLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${ProjectName}-lambda"
+      CodeUri:
+        Bucket: !Ref 'ServerlessDeploymentBucket'
+        Key: !Sub '${AWS::StackName}/lambda-package.zip'
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.11
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+      Layers:
+        - !Ref DjangoLayer
+
+Outputs:
+  DjangoApi:
+    Description: "API Gateway endpoint URL for Django Lambda"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  LambdaFunctionName:
+    Description: "Name of the Lambda function"
+    Value: !Ref DjangoLambdaFunction
+  LayerName:
+    Description: "Name of the Lambda Layer"
+    Value: !Ref DjangoLayer

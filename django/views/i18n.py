@@ -11,7 +11,6 @@ from django.urls import translate_url
 from django.utils.formats import get_format
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import check_for_language, get_language
-from django.utils.translation.trans_real import DjangoTranslation
 from django.views.generic import View
 
 LANGUAGE_QUERY_PARAMETER = "language"

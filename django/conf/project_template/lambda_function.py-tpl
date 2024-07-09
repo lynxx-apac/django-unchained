@@ -1,11 +1,11 @@
 import json
 import os
+import sys
 from pathlib import Path
 
-MAIN_APP = Path(__file__).resolve()
-BASE_DIR = MAIN_APP.parent
-PROJECT_NAME = BASE_DIR.name
-os.environ['DJANGO_SETTINGS_MODULE'] = f'{PROJECT_NAME}.settings'
+sys.path.append('/opt/python')
+
+os.environ['DJANGO_SETTINGS_MODULE'] = f'{{ project_name }}.settings'
 from django.core.handlers import APIGatewayHandler
 
 handler = APIGatewayHandler()
