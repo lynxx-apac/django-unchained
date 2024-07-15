@@ -1,9 +1,10 @@
 from django.utils.version import get_version
 
-VERSION = (5, 2, 0)
+VERSION = (5, 2, 0, "final", 0)
 UNCHAINED = True
 
 __version__ = get_version(VERSION)
+
 
 
 def setup(set_prefix=True):
