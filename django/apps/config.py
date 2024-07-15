@@ -235,6 +235,9 @@ class AppConfig:
             raise LookupError(
                 "App '%s' doesn't have a '%s' model." % (self.label, model_name)
             )
+        except TypeError:
+            self.import_models()
+            return self.get_model(model_name, require_ready=require_ready)
 
     def get_models(self, include_auto_created=False, include_swapped=False):
         """

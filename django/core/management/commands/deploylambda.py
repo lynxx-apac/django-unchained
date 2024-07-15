@@ -15,6 +15,8 @@ class Command(BaseCommand):
                             default=False)
 
     def handle(self, *args, **options):
+        if Path('lambda-package.zip').exists():
+            Path('lambda-package.zip').unlink()
         region = options['region'] or input("Enter the AWS region to deploy to: ")
         packages = options['packages']
         project_name = Path.cwd().name.replace('_', '-')
@@ -70,7 +72,7 @@ class Command(BaseCommand):
             ], check=True)
         self.stdout.write('Creating deployment package...')
         exclude_dirs = {'.venv', 'venv', '__pycache__', '.idea', 'django_layer',
-                        '.aws-sam', '.git', 'frontend'}
+                        '.aws-sam', '.git', 'frontend', 'static', 'media'}
         exclude_files = {'db.sqlite3', 'lambda-package.zip'}
         with zipfile.ZipFile('lambda-package.zip', 'w') as zf:
             for root, dirs, files in os.walk('.'):
@@ -94,5 +96,4 @@ class Command(BaseCommand):
             f'SecurityGroupId={security_group_id}',
             f'ProjectName={project_name}'
         ], check=True)
-        Path('lambda-package.zip').unlink()
         self.stdout.write(self.style.SUCCESS('Deployment completed successfully!'))

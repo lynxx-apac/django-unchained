@@ -13,8 +13,10 @@ handler = APIGatewayHandler()
 
 def lambda_handler(event, context=None):
     response = handler(event, context)
-    return {
+    response_dict = {
         'statusCode': response.status_code,
-        'headers': response.headers,
-        'body': json.dumps(response.data)
+        'headers': dict(response.headers),
     }
+    if hasattr(response, 'data'):
+        response_dict['body'] = json.dumps(response.data)
+    return response_dict
